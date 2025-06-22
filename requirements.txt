@@ -2,6 +2,8 @@ kagglehub
 pandas
 matplotlib 
 seaborn 
+plotly
+nbformat
 python-dotenv 
 langchain-community 
 langchain-openai 
