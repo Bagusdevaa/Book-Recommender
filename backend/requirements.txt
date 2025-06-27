@@ -1,0 +1,17 @@
+kagglehub
+pandas
+matplotlib 
+seaborn 
+plotly
+nbformat
+python-dotenv 
+langchain-community 
+langchain-openai 
+langchain-chroma 
+transformers 
+tensorflow
+tf-keras
+ipywidgets
+gradio
+fastapi
+uvicorn
