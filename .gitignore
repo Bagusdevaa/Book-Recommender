@@ -3,6 +3,7 @@
 venv/
 .env.local
 .env.*.local
+frontend/node_modules
 
 # IDE and editor files
 .vscode/
