@@ -11,6 +11,9 @@ venv/
 *.swo
 *~
 
+# Vector database
+data/vector_db/
+
 # OS generated files
 .DS_Store
 .DS_Store?
