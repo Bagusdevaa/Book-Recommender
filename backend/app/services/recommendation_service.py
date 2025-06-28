@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from typing import List, Optional
@@ -12,6 +13,9 @@ class RecommendationService:
         try:
             load_dotenv()
             self.books = pd.read_csv('data/books_with_emotions.csv')
+            self.vector_db_path = 'data/vector_db'
+            self._setup_vector_database()
+
             self.books['isbn13'] = self.books['isbn13'].astype(str)
 
             self.books["large_thumbnail"] = self.books["thumbnail"] + "&fife=w800"
@@ -21,14 +25,30 @@ class RecommendationService:
             self.books["large_thumbnail"],
             )
 
-            self.raw_documents = TextLoader("data/tagged_description.txt", encoding='utf-8').load()
-            self.text_splitter = CharacterTextSplitter(separator="\n", chunk_size=0, chunk_overlap=0)
-            self.documents = self.text_splitter.split_documents(self.raw_documents)
-            self.db_books = Chroma.from_documents(self.documents, OpenAIEmbeddings())
-
         except FileNotFoundError as e:
             print(e)
     
+    def _setup_vector_database(self):
+        if os.path.exists(self.vector_db_path):
+            print('Loading existing vector database')
+
+            self.db_books = Chroma(persist_directory=self.vector_db_path,
+                                   embedding_function=OpenAIEmbeddings())
+            
+            print('Vector database loaded from cache!')
+        else:
+            print('creating new vector database (this will use OpenAI API)')
+            # create new vector database
+            raw_documents = TextLoader('data/tagged_description.txt', encoding='utf8').load()
+            text_splitter = CharacterTextSplitter(separator='\n', chunk_size=0, chunk_overlap=0)
+            documents = text_splitter.split_documents(raw_documents)
+            self.db_books = Chroma.from_documents(documents,
+                                                  OpenAIEmbeddings(),
+                                                  persist_directory=self.vector_db_path)
+ 
+            print('Vector database created and saved')
+
+
     async def get_semantic_recommendations(self, query: str, category: str = 'All',
                                      tone: str = 'All',initial_top_k: int = 50 ,
                                      final_top_k: int = 16) -> List[dict]:
