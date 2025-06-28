@@ -36,7 +36,7 @@ def check_service_availability(service_instance, service_name: str):
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome t/o the Book Recommender API!"}
+    return {"message": "Welcome to the Book Recommender API!"}
 
 
 @app.get('/books', response_model=List[Book])
@@ -72,7 +72,7 @@ def search_books(q: str = Query(..., min_length=1, description="Search query for
 
 
 @app.post('/recommendations', response_model=List[Book])
-async def recommendation_request(request: RecommendationRequest):
+def recommendation_request(request: RecommendationRequest):
     check_service_availability(recommendation_service, "RecommendationService")
 
     if not request.query.strip():
