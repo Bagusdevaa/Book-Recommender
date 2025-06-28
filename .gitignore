@@ -12,7 +12,7 @@ venv/
 *~
 
 # Vector database
-data/vector_db/
+backend/data/vector_db/
 
 # OS generated files
 .DS_Store
