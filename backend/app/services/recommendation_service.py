@@ -21,7 +21,7 @@ class RecommendationService:
             self.books["large_thumbnail"] = self.books["thumbnail"] + "&fife=w800"
             self.books["large_thumbnail"] = np.where(
             self.books["large_thumbnail"].isna(),
-            "cover-not-found.jpg",
+            "backend/cover-not-found.jpg",
             self.books["large_thumbnail"],
             )
 
