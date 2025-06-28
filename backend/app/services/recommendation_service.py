@@ -48,29 +48,80 @@ class RecommendationService:
  
             print('Vector database created and saved')
 
+    def get_semantic_recommendations(self, query: str, category: str = 'All',
+                                           tone: str = 'All', initial_top_k: int = 50 ,
+                                           final_top_k: int = 16) -> List[dict]:
+        
+        print(f"\n--- Starting recommendation for query='{query}', category='{category}', tone='{tone}' ---")
+        
+        # Check if DB is ready and has documents
+        if self.db_books is None:
+            print("self.db_books is None. Cannot perform similarity search.")
+            return []
 
-    async def get_semantic_recommendations(self, query: str, category: str = 'All',
-                                     tone: str = 'All',initial_top_k: int = 50 ,
-                                     final_top_k: int = 16) -> List[dict]:
-            
-            recs = await self.db_books.similarity_search(query, k=initial_top_k)
-            books_list = [str(rec.page_content.strip('"').split()[0]) for rec in recs]
-            book_recs = self.books[self.books["isbn13"].isin(books_list)].head(initial_top_k)
+        try:
+            # Do a similarity search
+            recs = self.db_books.similarity_search(query, k=initial_top_k)
+            if not recs:
+                return []
 
+            # Extract ISBN and convert to string
+            books_list = []
+            for rec in recs:
+                try:
+                    isbn = str(rec.page_content.strip('"').split()[0])
+                    books_list.append(isbn)
+                except IndexError:
+                    print(f"WARNING: Could not parse ISBN from page_content: '{rec.page_content}'")
+                    continue
+
+            # Filter books by ISBN found
+            book_recs = self.books[self.books["isbn13"].isin(books_list)]
+            if book_recs.empty:
+                print("No matching books found in main DataFrame after ISBN filter.")
+                return []
+
+            # Take initial_top_k from ISBN filter result (if not already sliced)
+            book_recs = book_recs.head(initial_top_k)
+
+            # Category Filter
             if category != "All":
-                book_recs = book_recs[book_recs["simple_categories"] == category].head(final_top_k)
-            else:
-                book_recs = book_recs.head(final_top_k)
+                # Make sure 'simple_categories' exists and its data type is consistent
+                if "simple_categories" in book_recs.columns:
+                    # Also make sure the category of the input is the exact same string.
+                    book_recs = book_recs[book_recs["simple_categories"].astype(str) == category]
+                else:
+                    print("WARNING: 'simple_categories' column not found for category filtering.")
 
-            if tone == "Happy":
-                book_recs.sort_values(by="joy", ascending=False, inplace=True)
-            elif tone == "Surprising":
-                book_recs.sort_values(by="surprise", ascending=False, inplace=True)
-            elif tone == "Angry":
-                book_recs.sort_values(by="anger", ascending=False, inplace=True)
-            elif tone == "Suspenseful":
-                book_recs.sort_values(by="fear", ascending=False, inplace=True)
-            elif tone == "Sad":
-                book_recs.sort_values(by="sadness", ascending=False, inplace=True)
+            # Filter tone (sorting)
+            if tone != "All":
+                sort_col = ""
+                if tone == "Happy": sort_col = "joy"
+                elif tone == "Surprising": sort_col = "surprise"
+                elif tone == "Angry": sort_col = "anger"
+                elif tone == "Suspenseful": sort_col = "fear"
+                elif tone == "Sad": sort_col = "sadness"
+                
+                if sort_col and sort_col in book_recs.columns:
+                    book_recs.sort_values(by=sort_col, ascending=False, inplace=True)
+                else:
+                    print(f"WARNING: Tone '{tone}' selected, but column '{sort_col}' not found or invalid. Skipping tone sort.")
 
-            return book_recs.to_dict('records')
+            # Apply final_top_k
+            book_recs = book_recs.head(final_top_k)
+            
+            # Select the relevant columns and return
+            relevant_columns = ['isbn13', 'title', 'authors', 'description', 'average_rating', 'large_thumbnail']
+            for col in ['joy', 'surprise', 'anger', 'fear', 'sadness']:
+                 if col in self.books.columns: relevant_columns.append(col)
+            
+            cols_to_return = [col for col in relevant_columns if col in book_recs.columns]
+            
+            results = book_recs[cols_to_return].to_dict('records')
+            return results
+        
+        except Exception as e:
+            print(f"ERROR: An error occurred during semantic recommendations: {e}")
+            import traceback
+            traceback.print_exc() 
+            return []
