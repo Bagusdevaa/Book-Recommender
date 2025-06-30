@@ -1,7 +1,9 @@
+from pathlib import Path
 from app.models.book import Book
 from typing import List, Optional
 from app.services.book_service import BookService
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.recommendation import RecommendationRequest
 from app.services.recommendation_service import RecommendationService
@@ -17,11 +19,15 @@ recommendation_service = RecommendationService()
 # Middleware CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = ['http://localhost:3000'],
+    allow_origins = ['http://localhost:5173'],
     allow_credentials = True,
     allow_methods = ["*"],
     allow_headers = ["*"]
 )
+
+# Add mount static files directory
+noCoverPath = Path.cwd()
+app.mount('/static', StaticFiles(directory=noCoverPath), name='static')
 
 # Helper function to check service availability in the route
 def check_service_availability(service_instance, service_name: str):
@@ -43,7 +49,7 @@ def read_root():
 def get_books():
     check_service_availability(book_service, "BookService")
     books = book_service.get_all_books()
-    return books[:2]
+    return books[:20]
 
 
 @app.get('/books/{isbn13}', response_model=Book)

@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import pandas as pd
 import numpy as np
 from typing import List, Optional
@@ -12,6 +13,9 @@ class RecommendationService:
     def __init__(self):
         try:
             load_dotenv()
+            # cwd = Path.cwd()
+            # noCoverPath = f'{cwd.parent}\\cover-not-found.jpg'
+            noCoverPath = "http://localhost:8000/static/cover-not-found.jpg"
             self.books = pd.read_csv('data/books_with_emotions.csv')
             self.vector_db_path = 'data/vector_db'
             self._setup_vector_database()
@@ -21,7 +25,7 @@ class RecommendationService:
             self.books["large_thumbnail"] = self.books["thumbnail"] + "&fife=w800"
             self.books["large_thumbnail"] = np.where(
             self.books["large_thumbnail"].isna(),
-            "backend/cover-not-found.jpg",
+            noCoverPath,
             self.books["large_thumbnail"],
             )
 
@@ -52,7 +56,7 @@ class RecommendationService:
                                            tone: str = 'All', initial_top_k: int = 50 ,
                                            final_top_k: int = 16) -> List[dict]:
         
-        print(f"\n--- Starting recommendation for query='{query}', category='{category}', tone='{tone}' ---")
+        print(f"\n--- Starting recommendation for query='{query}', category='{category}', tone='{tone}', limit={final_top_k} ---")
         
         # Check if DB is ready and has documents
         if self.db_books is None:
@@ -111,7 +115,7 @@ class RecommendationService:
             book_recs = book_recs.head(final_top_k)
             
             # Select the relevant columns and return
-            relevant_columns = ['isbn13', 'title', 'authors', 'description', 'average_rating', 'large_thumbnail']
+            relevant_columns = ['isbn13', 'title', 'authors', 'description', 'simple_categories', 'average_rating', 'large_thumbnail']
             for col in ['joy', 'surprise', 'anger', 'fear', 'sadness']:
                  if col in self.books.columns: relevant_columns.append(col)
             

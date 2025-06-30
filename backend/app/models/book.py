@@ -6,8 +6,7 @@ class Book(BaseModel):
     title: str
     authors: str
     description: str
-    average_rating: float
-    thumbnail: Optional[str] = None       
+    average_rating: float     
     large_thumbnail: Optional[str] = None 
     simple_categories: Optional[str] = None 
     joy: Optional[float] = None

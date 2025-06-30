@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from typing import List, Optional
@@ -9,13 +10,16 @@ class BookService:
     def __init__(self):
         try:
             load_dotenv()
+            # cwd = Path.cwd()
+            # noCoverPath = f'{cwd.parent}\\cover-not-found.jpg'
+            noCoverPath = "http://localhost:8000/static/cover-not-found.jpg"
             self.books = pd.read_csv('data/books_with_emotions.csv')
             self.books['isbn13'] = self.books['isbn13'].astype(str)
             # Generate large_thumbnail logic
             self.books["large_thumbnail"] = self.books["thumbnail"] + "&fife=w800"
             self.books["large_thumbnail"] = np.where(
                 self.books["large_thumbnail"].isna(),
-                "cover-not-found.jpg",
+                noCoverPath,
                 self.books["large_thumbnail"],
             )
 
@@ -23,8 +27,7 @@ class BookService:
                                 'title': self.books['title'],
                                 'authors': self.books['authors'],
                                 'description': self.books['description'],
-                                'average_rating': self.books['average_rating'],
-                                'thumbnail': self.books['thumbnail'],       
+                                'average_rating': self.books['average_rating'],      
                                 'large_thumbnail': self.books['large_thumbnail'],
                                 'simple_categories': self.books['simple_categories'],
                                 'joy': self.books['joy'],
