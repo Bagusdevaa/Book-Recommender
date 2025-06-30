@@ -60,23 +60,12 @@ const BookCard = ({ book, onClick }) => {
                         ⭐ {book.average_rating ? book.average_rating.toFixed(1) : 'N/A'}
                     </span>
 
-                    {/* IMPROVE: Better category handling */}
                     {book.simple_categories && book.simple_categories !== "" && (
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
                             {book.simple_categories}
                         </span>
                     )}
                 </div>
-
-                {/* DEBUG: Show all available fields */}
-                {process.env.NODE_ENV === 'development' && (
-                    <div className="text-xs text-gray-400 mt-2">
-                        <details>
-                            <summary>Debug Info</summary>
-                            <pre className="text-xs">{JSON.stringify(book, null, 2)}</pre>
-                        </details>
-                    </div>
-                )}
             </div>
         </div>
     );
