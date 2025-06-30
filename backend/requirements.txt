@@ -13,3 +13,5 @@ tensorflow
 tf-keras
 ipywidgets
 gradio
+fastapi
+uvicorn

@@ -3,13 +3,44 @@
 venv/
 .env.local
 .env.*.local
+/node_modules
+/.pnp
+.pnp.js
+frontend/node_modules
+dist
+dist-ssr
+*.local
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Vector database
+backend/data/vector_db/
 
 # OS generated files
 .DS_Store
@@ -21,11 +52,13 @@ ehthumbs.db
 Thumbs.db
 
 # Logs
+logs
 *.log
-logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Runtime data
 pids/
