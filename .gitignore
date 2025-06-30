@@ -7,6 +7,9 @@ venv/
 /.pnp
 .pnp.js
 frontend/node_modules
+dist
+dist-ssr
+*.local
 
 # testing
 /coverage
@@ -26,11 +29,15 @@ yarn-debug.log*
 yarn-error.log*
 
 # IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # Vector database
 backend/data/vector_db/
@@ -45,11 +52,13 @@ ehthumbs.db
 Thumbs.db
 
 # Logs
+logs
 *.log
-logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Runtime data
 pids/
